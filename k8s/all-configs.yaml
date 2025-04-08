@@ -1,0 +1,820 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  ports:
+    - name: "9092"
+      port: 9092
+      targetPort: 9092
+    - name: "9101"
+      port: 9101
+      targetPort: 9101
+  selector:
+    io.kompose.service: broker
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: control-center
+  name: control-center
+spec:
+  ports:
+    - name: "9021"
+      port: 9021
+      targetPort: 9021
+  type: NodePort
+  selector:
+    io.kompose.service: control-center
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: postgres
+  name: postgres
+spec:
+  ports:
+    - name: "5432"
+      port: 5432
+      targetPort: 5432
+  type: NodePort
+  selector:
+    io.kompose.service: postgres
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: schema-registry
+  name: schema-registry
+spec:
+  ports:
+    - name: "8081"
+      port: 8081
+      targetPort: 8081
+  type: NodePort
+  selector:
+    io.kompose.service: schema-registry
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: spark-master
+  name: spark-master
+spec:
+  ports:
+    - name: "9090"
+      port: 9090
+      targetPort: 8080
+    - name: "7077"
+      port: 7077
+      targetPort: 7077
+  type: NodePort
+  selector:
+    io.kompose.service: spark-master
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: webserver
+  name: webserver
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+  selector:
+    io.kompose.service: webserver
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: zookeeper
+  name: zookeeper
+spec:
+  ports:
+    - name: "2181"
+      port: 2181
+      targetPort: 2181
+  type: NodePort
+  selector:
+    io.kompose.service: zookeeper
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: broker
+  name: broker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: broker
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: broker
+    spec:
+      containers:
+        - env:
+            - name: CONFLUENT_METRICS_ENABLE
+              value: "false"
+            - name: CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS
+              value: broker:29092
+            - name: CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS
+              value: "1"
+            - name: CONFLUENT_SUPPORT_CUSTOMER_ID
+              value: anonymous
+            - name: KAFKA_ADVERTISED_LISTENERS
+              value: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+            - name: KAFKA_BROKER_ID
+              value: "1"
+            - name: KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL
+              value: http://schema-registry:8081
+            - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
+              value: "0"
+            - name: KAFKA_JMX_HOSTNAME
+              value: localhost
+            - name: KAFKA_JMX_PORT
+              value: "9101"
+            - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+              value: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+            - name: KAFKA_METRIC_REPORTERS
+              value: io.confluent.metrics.reporter.ConfluentMetricsReporter
+            - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+              value: "1"
+            - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+              value: "1"
+            - name: KAFKA_ZOOKEEPER_CONNECT
+              value: zookeeper:2181
+          image: confluentinc/cp-server
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - nc -z localhost 9092
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: broker
+          ports:
+            - containerPort: 9092
+              protocol: TCP
+            - containerPort: 9101
+              protocol: TCP
+      hostname: broker
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: control-center
+  name: control-center
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: control-center
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: control-center
+    spec:
+      containers:
+        - env:
+            - name: CONFLUENT_METRICS_ENABLE
+              value: "false"
+            - name: CONFLUENT_METRICS_TOPIC_REPLICATION
+              value: "1"
+            - name: CONTROL_CENTER_BOOTSTRAP_SERVERS
+              value: broker:29092
+            - name: CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS
+              value: "1"
+            - name: CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS
+              value: "1"
+            - name: CONTROL_CENTER_REPLICATION_FACTOR
+              value: "1"
+            - name: CONTROL_CENTER_SCHEMA_REGISTRY_URL
+              value: http://schema-registry:8081
+            - name: PORT
+              value: "9021"
+          image: confluentinc/cp-enterprise-control-center
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:9021/health
+            failureThreshold: 5
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: control-center
+          ports:
+            - containerPort: 9021
+              protocol: TCP
+      hostname: control-center
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: postgres
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: postgres
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: postgres
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: airflow
+            - name: POSTGRES_PASSWORD
+              value: airflow
+            - name: POSTGRES_USER
+              value: airflow
+          image: postgres
+          name: postgres
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: scheduler
+  name: scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: scheduler
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: scheduler
+    spec:
+      containers:
+        - args:
+            - bash
+            - -c
+            - pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler
+          env:
+            - name: AIRFLOW_WEBSERVER_SECRET_KEY
+              value: this_is_a_very_secured_key
+            - name: AIRFLOW__CORE__EXECUTOR
+              value: LocalExecutor
+            - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+              value: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+            - name: AIRFLOW__WEBSERVER__RBAC
+              value: "False"
+          image: apache/airflow:2.6.0-python3.9
+          name: scheduler
+          volumeMounts:
+            - mountPath: /opt/airflow/dags
+              name: scheduler-cm0
+            - mountPath: /opt/airflow/script/entrypoint.sh
+              name: scheduler-cm1
+              subPath: entrypoint.sh
+            - mountPath: /opt/airflow/requirements.txt
+              name: scheduler-cm2
+              subPath: requirements.txt
+            - mountPath: /opt/airflow/minio_config.py
+              name: scheduler-claim3
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: scheduler-cm0
+          name: scheduler-cm0
+        - configMap:
+            items:
+              - key: entrypoint.sh
+                path: entrypoint.sh
+            name: scheduler-cm1
+          name: scheduler-cm1
+        - configMap:
+            items:
+              - key: requirements.txt
+                path: requirements.txt
+            name: scheduler-cm2
+          name: scheduler-cm2
+        - name: scheduler-claim3
+          persistentVolumeClaim:
+            claimName: scheduler-claim3
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: scheduler-claim3
+  name: scheduler-claim3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+data:
+  training_data_streaming.py: "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom airflow.models import Variable\nimport logging, io\n\nimport sys\nimport os\n\nsys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))\n\nfrom minio_config import config\n\n#Import MinIO client\ntry:\n    from minio import Minio\n    from minio.error import S3Error\nexcept ImportError:\n    pass\n\ndefault_args = {\n    'owner': 'airscholar',\n    'start_date': datetime(2025, 3, 24, 10, 00),\n    'retries': 1,\n    'retry_delay': timedelta(minutes=1)\n}\n\ndef minio_client_initialization():\n    \n    minio_client = Minio(\n        'minio:9000',\n        access_key=config['access_key'],\n        secret_key=config['secret_key'],\n        secure=False\n    )\n    \n    bucket_name = \"bronze\"\n    \n    if not minio_client.bucket_exists(bucket_name=bucket_name):\n        try:\n            minio_client.make_bucket(bucket_name=bucket_name)\n            logging.info(f\"Create bucket {bucket_name} successfully\")\n        except S3Error as e:\n            logging.error(f\"Failed to create bucket {bucket_name}\")\n    \n    return minio_client\n\ndef get_next(last_processed_hour):\n    dt = datetime.strptime(last_processed_hour, '%Y-%m-%d_%H')\n    \n    next_dt = dt + timedelta(hours=1)\n    \n    year = f\"{next_dt.year}\"\n    month = f\"{next_dt.month:02d}\"\n    day = f\"{next_dt.day:02d}\"\n    hour = f\"{next_dt.hour:02d}\"\n    \n    return year, month, day, hour\n\ndef get_data(minio_client: Minio, bucket_name='storage'):\n    \n    if not minio_client.bucket_exists(bucket_name):\n        logging.error(f\"Bucket {bucket_name} does not exist\")\n        return\n\n    try:\n        last_processed_hour = Variable.get(\"last_processed_hour\")\n    except:\n        last_processed_hour = \"2019-11-27_23\"\n        Variable.set(\"last_processed_hour\", last_processed_hour)\n    \n    logging.info(f\"Last processed hour: {last_processed_hour}\")\n    \n    year, month, day, hour = get_next(last_processed_hour)\n    \n    last_processed_hour = f\"{year}-{month}-{day}_{hour}\"\n    \n    target_filename = f\"data_{last_processed_hour}.parquet\"\n    \n    try:\n        objects = list(minio_client.list_objects(bucket_name=bucket_name, prefix=target_filename))\n        if not objects:\n            logging.warning(f\"File {target_filename} does not exist in bucket {bucket_name}\")\n            return f\"File {target_filename} does not exist, will try again next run\"\n    except Exception as e:\n        logging.error(f\"Error listing objects: {e}\")\n        return\n        \n    try:\n        response = minio_client.get_object(bucket_name=bucket_name, object_name=target_filename)\n        dest_file = f\"training_data/year={year}/month={month}/day={day}/{hour}.parquet\"\n        return response, dest_file, last_processed_hour \n    except Exception as e:\n        logging.error(f\"Something went wrong when read object: {e}\")\n        return\n\n    \ndef stream_data():\n    \n    minio_client = minio_client_initialization()\n    \n    response, dest_file, last_processed_hour = get_data(minio_client=minio_client)\n    \n    dest_bucket = \"bronze\"\n    \n    try:\n        buffer = response.read()\n        \n        minio_client.put_object(\n        bucket_name=dest_bucket,\n        object_name=dest_file,\n        data=io.BytesIO(buffer),\n        length=len(buffer),\n        content_type='application/octet-stream'\n        )\n        \n        Variable.set('last_processed_hour', last_processed_hour)\n    except Exception as e:\n        logging.error(f\"Something went wrong when trying to put data to bronze {e}\")\n        \nwith DAG('training_data_streaming', \n         default_args=default_args,\n         schedule_interval='@hourly',\n         catchup=False) as dag:\n\n    # Streaming data to bronze storage\n    streaming_task = PythonOperator(\n        task_id='load_data_to_minio',\n        python_callable=stream_data\n    )\n    \n    streaming_task\n\n\n\n\n\n\n\n"
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: scheduler
+  name: scheduler-cm0
+
+---
+apiVersion: v1
+data:
+  entrypoint.sh: |-
+    #!/bin/bash
+    set -e
+
+    if [ -e "/opt/airflow/requirements.txt" ]; then
+      $(command python) pip install --upgrade pip
+      $(command -v pip) install --user -r requirements.txt
+    fi
+
+    if [ ! -f "/opt/airflow/airflow.db" ]; then
+      airflow db init && \
+      airflow users create \
+        --username admin \
+        --firstname admin \
+        --lastname admin \
+        --role Admin \
+        --email admin@example.com \
+        --password admin
+    fi
+
+    $(command -v airflow) db upgrade
+
+    exec airflow webserver
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: scheduler
+  name: scheduler-cm1
+
+---
+apiVersion: v1
+data:
+  requirements.txt: "# Core Apache Airflow\napache-airflow==2.7.0\n\n# Airflow Providers\napache-airflow-providers-common-sql==1.7.1\napache-airflow-providers-http==4.5.1\napache-airflow-providers-postgres==5.6.0\n\n# Kafka & Streaming\nkafka-python==2.0.2\n\n# Database\nSQLAlchemy==1.4.49\npsycopg2-binary==2.9.9\n\n# Utilities\nrequests==2.31.0\npython-dateutil==2.8.2\npendulum==2.1.2 \n\n# Logging & Formatting\nrich==13.5.2\nPyYAML==6.0.1\n\n# Minio \nminio==7.2.0"
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: scheduler
+  name: scheduler-cm2
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: schema-registry
+  name: schema-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: schema-registry
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: schema-registry
+    spec:
+      containers:
+        - env:
+            - name: SCHEMA_REGISTRY_HOST_NAME
+              value: schema-registry
+            - name: SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS
+              value: PLAINTEXT://broker:29092 # broker:29092
+            - name: SCHEMA_REGISTRY_LISTENERS
+              value: http://0.0.0.0:8081
+          image: confluentinc/cp-schema-registry:7.4.0
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8081/
+            initialDelaySeconds: 30
+            failureThreshold: 5
+            periodSeconds: 30
+            timeoutSeconds: 30
+          name: schema-registry
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+      hostname: schema-registry
+      restartPolicy: Always
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: spark-master
+  name: spark-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: spark-master
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: spark-master
+    spec:
+      containers:
+        - args:
+            - bin/spark-class
+            - org.apache.spark.deploy.master.Master
+          image: bitnami/spark:latest
+          name: spark-master
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 7077
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /opt/spark_app
+              name: spark-master-cm0
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: spark-master-cm0
+          name: spark-master-cm0
+
+---
+apiVersion: v1
+data:
+  training_data_stream.py: "from pyspark.sql import SparkSession\nfrom pyspark.sql.functions import from_json, col, udf, expr\nfrom pyspark.sql.types import StructType, StructField, StringType, ArrayType, TimestampType, DoubleType\nfrom minio import Minio\nimport urllib.parse\nimport logging\n\nimport sys\nimport os\n\nsys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))\n\nfrom minio_config import config\n\n# Config Spark to directly access MinIO\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.endpoint\", \"minio:9000\")\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.access.key\", config['access_key'])\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.secret.key\", config['secret_key'])\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.path.style.access\", \"true\")\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.connection.ssl.enabled\", \"false\")\n\n# Initialize Spark Session\nspark = SparkSession.builder \\\n    .appName(\"KafkaExample\") \\\n    .config(\"spark.streaming.stopGracefullyonShutdown\", True)\\\n    .config(\"spark.jars.packages\", \"org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0\")\\\n    .config(\"spark.jars.packages\", \"org.postgresql:postgresql:42.7.4\") \\\n    .config(\"spark.sql.shuffle.partitions\", 4)\\\n    .master(\"spark://spark-master:7077\")\\\n    .getOrCreate()\n\n# Connect Kafka to Spark, then it allows to read messages from specific Kafka topics \nkafkaDF = spark.readStream.format(\"kafka\") \\\n    .option(\"kafka.bootstrap.servers\", \"broker:29092\") \\\n    .option(\"subscribe\", \"training_data_streaming\") \\\n    .option('startingOffsets', 'earliest') \\\n    .load()\n\n# Define schema for Minio notification events received from Kafka  \nminio_event_schema = StructType([\n    StructField(\"EventName\", StringType(), True),\n    StructField(\"Key\", StringType(), True),\n    StructField(\"Records\", ArrayType(\n        StructType([\n            StructField(\"eventName\", StringType(), True),\n            StructField(\"s3\", StructType([\n                StructField(\"bucket\", StructType([\n                    StructField(\"name\", StringType(), True)\n                ]), True),\n                StructField(\"object\", StructType([\n                    StructField(\"key\", StringType(), True),\n                    StructField(\"size\", StringType(), True),\n                    StructField(\"contentType\", StringType(), True)\n                ]), True)\n            ]), True)\n        ])\n    ), True)  \n])\n\n# Define schema for e-commerce data\necommerce_schema = StructType([\n    StructField(\"event_time\", TimestampType(), True),    # Thời gian xảy ra sự kiện (UTC)\n    StructField(\"event_type\", StringType(), True),       # Loại sự kiện: view, cart, remove_from_cart, purchase\n    StructField(\"product_id\", StringType(), True),      # ID sản phẩm\n    StructField(\"category_id\", StringType(), True),     # ID danh mục sản phẩm\n    StructField(\"category_code\", StringType(), True),    # Tên danh mục (có thể null)\n    StructField(\"brand\", StringType(), True),            # Tên thương hiệu (có thể null)\n    StructField(\"price\", DoubleType(), True),            # Giá sản phẩm\n    StructField(\"user_id\", StringType(), True),         # ID người dùng\n    StructField(\"user_session\", StringType(), True)      # ID phiên làm việc của người dùng\n])\n\n# Parse event received from Kafka\nparsed_events = kafkaDF.selectExpr(\"CAST(value AS STRING)\") \\\n        .select(from_json(col('value'), minio_event_schema).alias('event')).select(\"event.*\")\n\n   \ndef write_to_postgres(batch_df, batch_id):\n    try:\n        batch_df.write \\\n            .format(\"jdbc\") \\\n            .mode(\"append\") \\\n            .option(\"url\", \"jdbc:postgresql://postgres:5432/airflow\") \\\n            .option(\"dbtable\", \"processed_data\") \\\n            .option(\"user\", \"airflow\") \\\n            .option(\"password\", \"airflow\") \\\n            .option(\"driver\", \"org.postgresql.Driver\")\\\n            .option(\"createTableColumnTypes\", \"\"\"\n                event_time TIMESTAMP, \n                event_type VARCHAR(50), \n                product_id VARCHAR(100), \n                category_id VARCHAR(100), \n                category_code VARCHAR(255), \n                brand VARCHAR(255), \n                price DECIMAL(10,2),\n                user_id VARCHAR(100),\n                user_session VARCHAR(255)\n            \"\"\") \\\n            .save()\n        logging.info(f\"Batch {batch_id} loaded successfully\")\n    except Exception as e:\n        logging.error(f\"Error writing batch {batch_id}: {str(e)}\")\n        \ndef process_batch(batch_df, batch_id):\n    if batch_df.isEmpty():\n        logging.info(f\"Batch {batch_id} is empty\")\n        return\n    try:\n        # Extract bucket name & object key from event notification messages received from Kafka\n        keys_df = batch_df.filter(col(\"Records\").isNotNull()) \\\n            .select(\n                col(\"Records\")[0][\"s3\"][\"bucket\"][\"name\"].alias(\"bucket_name\"),\n                col(\"Records\")[0][\"s3\"][\"object\"][\"key\"].alias(\"object_key\")\n            )\n        \n        if keys_df.isEmpty():\n            logging.info(f\"No valid MinIO events in batch {batch_id}\")\n            return   \n        \n        # Xử lý từng hàng (mỗi thông báo sự kiện)\n        for row in keys_df.collect():\n            bucket_name = row[\"bucket_name\"]\n            encoded_object_key = row[\"object_key\"]\n            \n            # URL decode key\n            object_key = urllib.parse.unquote(encoded_object_key)\n            \n            logging.info(f\"Processing file: {object_key} from bucket: {bucket_name}\")\n            \n            try:\n                # Đọc file Parquet từ MinIO\n                response = minio_client.get_object(bucket_name, object_key)\n                parquet_data = response.read()\n                \n                # Ghi tạm ra file để Spark đọc (Spark cần đường dẫn file)\n                temp_path = f\"/tmp/parquet_file_{batch_id}.parquet\"\n                with open(temp_path, \"wb\") as f:\n                    f.write(parquet_data)\n                \n                # Đọc Parquet bằng Spark\n                user_df = spark.read.parquet(temp_path)\n                \n                # Ghi dữ liệu vào PostgreSQL\n                write_to_postgres(user_df, f\"{batch_id}_{object_key}\")\n            \n            except Exception as e:\n                logging(f\"Error processing {object_key}: {e}\")\n    except Exception as e:\n        logging.error(f\"Error in batch {batch_id}: {str(e)}\")\n                \nquery = parsed_events.writeStream \\\n                    .foreachBatch(process_batch) \\\n                        .outputMode(\"append\") \\\n                            .start()\\\n                                .awaitTermination()"
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: spark-master
+  name: spark-master-cm0
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: spark-worker
+  name: spark-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: spark-worker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: spark-worker
+    spec:
+      containers:
+        - args:
+            - bin/spark-class
+            - org.apache.spark.deploy.worker.Worker
+            - spark://spark-master:7077
+          env:
+            - name: SPARK_MASTER_URL
+              value: spark://spark-master:7077
+            - name: SPARK_MODE
+              value: worker
+            - name: SPARK_WORKER_CORES
+              value: "2"
+            - name: SPARK_WORKER_MEMORY
+              value: 1g
+          image: bitnami/spark:latest
+          name: spark-worker
+          volumeMounts:
+            - mountPath: /opt/spark_app
+              name: spark-worker-cm0
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: spark-worker-cm0
+          name: spark-worker-cm0
+
+---
+apiVersion: v1
+data:
+  training_data_stream.py: "from pyspark.sql import SparkSession\nfrom pyspark.sql.functions import from_json, col, udf, expr\nfrom pyspark.sql.types import StructType, StructField, StringType, ArrayType, TimestampType, DoubleType\nfrom minio import Minio\nimport urllib.parse\nimport logging\n\nimport sys\nimport os\n\nsys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))\n\nfrom minio_config import config\n\n# Config Spark to directly access MinIO\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.endpoint\", \"minio:9000\")\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.access.key\", config['access_key'])\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.secret.key\", config['secret_key'])\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.path.style.access\", \"true\")\nspark._jsc.hadoopConfiguration().set(\"fs.s3a.connection.ssl.enabled\", \"false\")\n\n# Initialize Spark Session\nspark = SparkSession.builder \\\n    .appName(\"KafkaExample\") \\\n    .config(\"spark.streaming.stopGracefullyonShutdown\", True)\\\n    .config(\"spark.jars.packages\", \"org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0\")\\\n    .config(\"spark.jars.packages\", \"org.postgresql:postgresql:42.7.4\") \\\n    .config(\"spark.sql.shuffle.partitions\", 4)\\\n    .master(\"spark://spark-master:7077\")\\\n    .getOrCreate()\n\n# Connect Kafka to Spark, then it allows to read messages from specific Kafka topics \nkafkaDF = spark.readStream.format(\"kafka\") \\\n    .option(\"kafka.bootstrap.servers\", \"broker:29092\") \\\n    .option(\"subscribe\", \"training_data_streaming\") \\\n    .option('startingOffsets', 'earliest') \\\n    .load()\n\n# Define schema for Minio notification events received from Kafka  \nminio_event_schema = StructType([\n    StructField(\"EventName\", StringType(), True),\n    StructField(\"Key\", StringType(), True),\n    StructField(\"Records\", ArrayType(\n        StructType([\n            StructField(\"eventName\", StringType(), True),\n            StructField(\"s3\", StructType([\n                StructField(\"bucket\", StructType([\n                    StructField(\"name\", StringType(), True)\n                ]), True),\n                StructField(\"object\", StructType([\n                    StructField(\"key\", StringType(), True),\n                    StructField(\"size\", StringType(), True),\n                    StructField(\"contentType\", StringType(), True)\n                ]), True)\n            ]), True)\n        ])\n    ), True)  \n])\n\n# Define schema for e-commerce data\necommerce_schema = StructType([\n    StructField(\"event_time\", TimestampType(), True),    # Thời gian xảy ra sự kiện (UTC)\n    StructField(\"event_type\", StringType(), True),       # Loại sự kiện: view, cart, remove_from_cart, purchase\n    StructField(\"product_id\", StringType(), True),      # ID sản phẩm\n    StructField(\"category_id\", StringType(), True),     # ID danh mục sản phẩm\n    StructField(\"category_code\", StringType(), True),    # Tên danh mục (có thể null)\n    StructField(\"brand\", StringType(), True),            # Tên thương hiệu (có thể null)\n    StructField(\"price\", DoubleType(), True),            # Giá sản phẩm\n    StructField(\"user_id\", StringType(), True),         # ID người dùng\n    StructField(\"user_session\", StringType(), True)      # ID phiên làm việc của người dùng\n])\n\n# Parse event received from Kafka\nparsed_events = kafkaDF.selectExpr(\"CAST(value AS STRING)\") \\\n        .select(from_json(col('value'), minio_event_schema).alias('event')).select(\"event.*\")\n\n   \ndef write_to_postgres(batch_df, batch_id):\n    try:\n        batch_df.write \\\n            .format(\"jdbc\") \\\n            .mode(\"append\") \\\n            .option(\"url\", \"jdbc:postgresql://postgres:5432/airflow\") \\\n            .option(\"dbtable\", \"processed_data\") \\\n            .option(\"user\", \"airflow\") \\\n            .option(\"password\", \"airflow\") \\\n            .option(\"driver\", \"org.postgresql.Driver\")\\\n            .option(\"createTableColumnTypes\", \"\"\"\n                event_time TIMESTAMP, \n                event_type VARCHAR(50), \n                product_id VARCHAR(100), \n                category_id VARCHAR(100), \n                category_code VARCHAR(255), \n                brand VARCHAR(255), \n                price DECIMAL(10,2),\n                user_id VARCHAR(100),\n                user_session VARCHAR(255)\n            \"\"\") \\\n            .save()\n        logging.info(f\"Batch {batch_id} loaded successfully\")\n    except Exception as e:\n        logging.error(f\"Error writing batch {batch_id}: {str(e)}\")\n        \ndef process_batch(batch_df, batch_id):\n    if batch_df.isEmpty():\n        logging.info(f\"Batch {batch_id} is empty\")\n        return\n    try:\n        # Extract bucket name & object key from event notification messages received from Kafka\n        keys_df = batch_df.filter(col(\"Records\").isNotNull()) \\\n            .select(\n                col(\"Records\")[0][\"s3\"][\"bucket\"][\"name\"].alias(\"bucket_name\"),\n                col(\"Records\")[0][\"s3\"][\"object\"][\"key\"].alias(\"object_key\")\n            )\n        \n        if keys_df.isEmpty():\n            logging.info(f\"No valid MinIO events in batch {batch_id}\")\n            return   \n        \n        # Xử lý từng hàng (mỗi thông báo sự kiện)\n        for row in keys_df.collect():\n            bucket_name = row[\"bucket_name\"]\n            encoded_object_key = row[\"object_key\"]\n            \n            # URL decode key\n            object_key = urllib.parse.unquote(encoded_object_key)\n            \n            logging.info(f\"Processing file: {object_key} from bucket: {bucket_name}\")\n            \n            try:\n                # Đọc file Parquet từ MinIO\n                response = minio_client.get_object(bucket_name, object_key)\n                parquet_data = response.read()\n                \n                # Ghi tạm ra file để Spark đọc (Spark cần đường dẫn file)\n                temp_path = f\"/tmp/parquet_file_{batch_id}.parquet\"\n                with open(temp_path, \"wb\") as f:\n                    f.write(parquet_data)\n                \n                # Đọc Parquet bằng Spark\n                user_df = spark.read.parquet(temp_path)\n                \n                # Ghi dữ liệu vào PostgreSQL\n                write_to_postgres(user_df, f\"{batch_id}_{object_key}\")\n            \n            except Exception as e:\n                logging(f\"Error processing {object_key}: {e}\")\n    except Exception as e:\n        logging.error(f\"Error in batch {batch_id}: {str(e)}\")\n                \nquery = parsed_events.writeStream \\\n                    .foreachBatch(process_batch) \\\n                        .outputMode(\"append\") \\\n                            .start()\\\n                                .awaitTermination()"
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: spark-worker
+  name: spark-worker-cm0
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: webserver
+  name: webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: webserver
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: webserver
+    spec:
+      containers:
+        - args:
+            - webserver
+          command:
+            - /opt/airflow/script/entrypoint.sh
+          env:
+            - name: AIRFLOW_WEBSERVER_SECRET_KEY
+              value: this_is_a_very_secured_key
+            - name: AIRFLOW__CORE__EXECUTOR
+              value: LocalExecutor
+            - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+              value: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+            - name: AIRFLOW__WEBSERVER__RBAC
+              value: "False"
+          image: apache/airflow:2.6.0-python3.9
+          livenessProbe:
+            exec:
+              command:
+                - '[ -f /opt/airflow/airflow-webserver.pid ]'
+            failureThreshold: 3
+            periodSeconds: 30
+            timeoutSeconds: 30
+          name: webserver
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /opt/airflow/dags
+              name: webserver-cm0
+            - mountPath: /opt/airflow/script/entrypoint.sh
+              name: webserver-cm1
+              subPath: entrypoint.sh
+            - mountPath: /opt/airflow/requirements.txt
+              name: webserver-cm2
+              subPath: requirements.txt
+            - mountPath: /opt/airflow/minio_config.py
+              name: webserver-claim3
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: webserver-cm0
+          name: webserver-cm0
+        - configMap:
+            items:
+              - key: entrypoint.sh
+                path: entrypoint.sh
+            name: webserver-cm1
+          name: webserver-cm1
+        - configMap:
+            items:
+              - key: requirements.txt
+                path: requirements.txt
+            name: webserver-cm2
+          name: webserver-cm2
+        - name: webserver-claim3
+          persistentVolumeClaim:
+            claimName: webserver-claim3
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    io.kompose.service: webserver-claim3
+  name: webserver-claim3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+data:
+  training_data_streaming.py: "from datetime import datetime, timedelta\nfrom airflow import DAG\nfrom airflow.operators.python import PythonOperator\nfrom airflow.models import Variable\nimport logging, io\n\nimport sys\nimport os\n\nsys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))\n\nfrom minio_config import config\n\n#Import MinIO client\ntry:\n    from minio import Minio\n    from minio.error import S3Error\nexcept ImportError:\n    pass\n\ndefault_args = {\n    'owner': 'airscholar',\n    'start_date': datetime(2025, 3, 24, 10, 00),\n    'retries': 1,\n    'retry_delay': timedelta(minutes=1)\n}\n\ndef minio_client_initialization():\n    \n    minio_client = Minio(\n        'minio:9000',\n        access_key=config['access_key'],\n        secret_key=config['secret_key'],\n        secure=False\n    )\n    \n    bucket_name = \"bronze\"\n    \n    if not minio_client.bucket_exists(bucket_name=bucket_name):\n        try:\n            minio_client.make_bucket(bucket_name=bucket_name)\n            logging.info(f\"Create bucket {bucket_name} successfully\")\n        except S3Error as e:\n            logging.error(f\"Failed to create bucket {bucket_name}\")\n    \n    return minio_client\n\ndef get_next(last_processed_hour):\n    dt = datetime.strptime(last_processed_hour, '%Y-%m-%d_%H')\n    \n    next_dt = dt + timedelta(hours=1)\n    \n    year = f\"{next_dt.year}\"\n    month = f\"{next_dt.month:02d}\"\n    day = f\"{next_dt.day:02d}\"\n    hour = f\"{next_dt.hour:02d}\"\n    \n    return year, month, day, hour\n\ndef get_data(minio_client: Minio, bucket_name='storage'):\n    \n    if not minio_client.bucket_exists(bucket_name):\n        logging.error(f\"Bucket {bucket_name} does not exist\")\n        return\n\n    try:\n        last_processed_hour = Variable.get(\"last_processed_hour\")\n    except:\n        last_processed_hour = \"2019-11-27_23\"\n        Variable.set(\"last_processed_hour\", last_processed_hour)\n    \n    logging.info(f\"Last processed hour: {last_processed_hour}\")\n    \n    year, month, day, hour = get_next(last_processed_hour)\n    \n    last_processed_hour = f\"{year}-{month}-{day}_{hour}\"\n    \n    target_filename = f\"data_{last_processed_hour}.parquet\"\n    \n    try:\n        objects = list(minio_client.list_objects(bucket_name=bucket_name, prefix=target_filename))\n        if not objects:\n            logging.warning(f\"File {target_filename} does not exist in bucket {bucket_name}\")\n            return f\"File {target_filename} does not exist, will try again next run\"\n    except Exception as e:\n        logging.error(f\"Error listing objects: {e}\")\n        return\n        \n    try:\n        response = minio_client.get_object(bucket_name=bucket_name, object_name=target_filename)\n        dest_file = f\"training_data/year={year}/month={month}/day={day}/{hour}.parquet\"\n        return response, dest_file, last_processed_hour \n    except Exception as e:\n        logging.error(f\"Something went wrong when read object: {e}\")\n        return\n\n    \ndef stream_data():\n    \n    minio_client = minio_client_initialization()\n    \n    response, dest_file, last_processed_hour = get_data(minio_client=minio_client)\n    \n    dest_bucket = \"bronze\"\n    \n    try:\n        buffer = response.read()\n        \n        minio_client.put_object(\n        bucket_name=dest_bucket,\n        object_name=dest_file,\n        data=io.BytesIO(buffer),\n        length=len(buffer),\n        content_type='application/octet-stream'\n        )\n        \n        Variable.set('last_processed_hour', last_processed_hour)\n    except Exception as e:\n        logging.error(f\"Something went wrong when trying to put data to bronze {e}\")\n        \nwith DAG('training_data_streaming', \n         default_args=default_args,\n         schedule_interval='@hourly',\n         catchup=False) as dag:\n\n    # Streaming data to bronze storage\n    streaming_task = PythonOperator(\n        task_id='load_data_to_minio',\n        python_callable=stream_data\n    )\n    \n    streaming_task\n\n\n\n\n\n\n\n"
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: webserver
+  name: webserver-cm0
+
+---
+apiVersion: v1
+data:
+  entrypoint.sh: |-
+    #!/bin/bash
+    set -e
+
+    if [ -e "/opt/airflow/requirements.txt" ]; then
+      $(command python) pip install --upgrade pip
+      $(command -v pip) install --user -r requirements.txt
+    fi
+
+    if [ ! -f "/opt/airflow/airflow.db" ]; then
+      airflow db init && \
+      airflow users create \
+        --username admin \
+        --firstname admin \
+        --lastname admin \
+        --role Admin \
+        --email admin@example.com \
+        --password admin
+    fi
+
+    $(command -v airflow) db upgrade
+
+    exec airflow webserver
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: webserver
+  name: webserver-cm1
+
+---
+apiVersion: v1
+data:
+  requirements.txt: "# Core Apache Airflow\napache-airflow==2.7.0\n\n# Airflow Providers\napache-airflow-providers-common-sql==1.7.1\napache-airflow-providers-http==4.5.1\napache-airflow-providers-postgres==5.6.0\n\n# Kafka & Streaming\nkafka-python==2.0.2\n\n# Database\nSQLAlchemy==1.4.49\npsycopg2-binary==2.9.9\n\n# Utilities\nrequests==2.31.0\npython-dateutil==2.8.2\npendulum==2.1.2 \n\n# Logging & Formatting\nrich==13.5.2\nPyYAML==6.0.1\n\n# Minio \nminio==7.2.0"
+kind: ConfigMap
+metadata:
+  annotations:
+    use-subpath: "true"
+  labels:
+    io.kompose.service: webserver
+  name: webserver-cm2
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+    kompose.version: 1.35.0 (9532ceef3)
+  labels:
+    io.kompose.service: zookeeper
+  name: zookeeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: zookeeper
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert -f docker-compose.yml -o k8s/all-configs.yaml
+        kompose.version: 1.35.0 (9532ceef3)
+      labels:
+        io.kompose.service: zookeeper
+    spec:
+      containers:
+        - env:
+            - name: ZOOKEEPER_CLIENT_PORT
+              value: "2181"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+          image: confluentinc/cp-zookeeper
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - echo 'ruok' | nc localhost 2181
+            failureThreshold: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          name: zookeeper
+          ports:
+            - containerPort: 2181
+              protocol: TCP
+      hostname: zookeeper
+      restartPolicy: Always
+

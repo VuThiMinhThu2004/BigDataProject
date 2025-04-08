@@ -1,0 +1,57 @@
+# control-center-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: control-center
+  namespace: thu-restricted  # Thêm namespace để khớp với cấu hình hiện tại
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: control-center
+  template:
+    metadata:
+      labels:
+        app: control-center
+    spec:
+      hostname: control-center
+      containers:
+      - name: control-center
+        image: confluentinc/cp-enterprise-control-center  # Giữ nguyên image bạn đã chọn
+        ports:
+        - containerPort: 9021
+        env:
+        - name: CONTROL_CENTER_BOOTSTRAP_SERVERS
+          value: "broker:29092"  # Địa chỉ Kafka broker (đảm bảo dịch vụ "broker" expose cổng 29092)
+        - name: CONTROL_CENTER_SCHEMA_REGISTRY_URL
+          value: "http://schema-registry:8081"  # URL của Schema Registry
+        - name: CONTROL_CENTER_REPLICATION_FACTOR
+          value: "1"  # Thêm biến bắt buộc, giá trị 1 nếu chỉ có 1 broker
+        - name: CONTROL_CENTER_ZOOKEEPER_CONNECT
+          value: "zookeeper:2181"  # Địa chỉ Zookeeper (dựa trên dịch vụ "zookeeper" của bạn)
+        - name: CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS
+          value: "1"  # Số luồng xử lý (tùy chọn, mặc định là 1)
+        - name: CONTROL_CENTER_MODE
+          value: "ENTERPRISE"  # Chế độ hoạt động (tùy thuộc vào image)
+        - name: CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS
+          value: "1"  # Số phân vùng cho các topic nội bộ
+        - name: CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS
+          value: "1"  # Số phân vùng cho topic giám sát
+        - name: CONFLUENT_METRICS_TOPIC_REPLICATION
+          value: "1"  # Số bản sao cho topic metrics
+        - name: CONFLUENT_METRICS_ENABLE  
+          value: "false"  # Tắt metrics nếu không cần thiết
+---
+# control-center-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: control-center
+  namespace: thu-restricted  # Thêm namespace để khớp
+spec:
+  selector:
+    app: control-center
+  ports:
+  - port: 9021
+    targetPort: 9021
+  type: NodePort

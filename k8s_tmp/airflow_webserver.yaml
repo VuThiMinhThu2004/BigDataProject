@@ -1,0 +1,76 @@
+# airflow_webserver.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webserver
+  template:
+    metadata:
+      labels:
+        app: webserver
+    spec:
+      containers:
+      - name: webserver
+        image: apache/airflow:2.6.0-python3.9
+        command: ["/opt/airflow/script/entrypoint.sh"]  # Thay entrypoint bằng command
+        args: ["webserver"]  # Thay command của Docker Compose bằng args
+        ports:
+        - containerPort: 8080
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: "LocalExecutor"
+        - name: AIRFLOW__WEBSERVER__RBAC
+          value: "False"
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow"
+        - name: AIRFLOW_WEBSERVER_SECRET_KEY
+          value: "this_is_a_very_secured_key"
+        volumeMounts:
+        - name: dags
+          mountPath: "/opt/airflow/dags"
+        - name: script
+          mountPath: "/opt/airflow/script/entrypoint.sh"
+          subPath: "entrypoint.sh"
+        - name: requirements
+          mountPath: "/opt/airflow/requirements.txt"
+          subPath: "requirements.txt"
+        - name: minio-config
+          mountPath: "/opt/airflow/minio_config.py"
+          subPath: "minio_config.py"
+        livenessProbe:  # Chuyển healthcheck sang livenessProbe
+          exec:
+            command: ["sh", "-c", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 30
+          failureThreshold: 3
+      volumes:
+      - name: dags
+        hostPath:
+          path: ./dags
+      - name: script
+        hostPath:
+          path: ./script/entrypoint.sh
+      - name: requirements
+        hostPath:
+          path: ./requirements.txt
+      - name: minio-config
+        hostPath:
+          path: ./minio_config.py
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webserver
+spec:
+  selector:
+    app: webserver
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: NodePort  # Có thể đổi thành NodePort hoặc LoadBalancer nếu cần truy cập từ bên ngoài

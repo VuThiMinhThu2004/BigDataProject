@@ -1,0 +1,54 @@
+# scheduler.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scheduler
+  template:
+    metadata:
+      labels:
+        app: scheduler
+    spec:
+      containers:
+      - name: scheduler
+        image: apache/airflow:2.6.0-python3.9
+        command: ["bash", "-c"]  # Dùng command để chạy lệnh shell
+        args: ["pip install -r ./requirements.txt && airflow db upgrade && airflow scheduler"]  # Truyền lệnh vào args
+        env:
+        - name: AIRFLOW__CORE__EXECUTOR
+          value: "LocalExecutor"
+        - name: AIRFLOW__WEBSERVER__RBAC
+          value: "False"
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          value: "postgresql+psycopg2://airflow:airflow@postgres:5432/airflow"
+        - name: AIRFLOW_WEBSERVER_SECRET_KEY
+          value: "this_is_a_very_secured_key"
+        volumeMounts:
+        - name: dags
+          mountPath: "/opt/airflow/dags"
+        - name: script
+          mountPath: "/opt/airflow/script/entrypoint.sh"
+          subPath: "entrypoint.sh"
+        - name: requirements
+          mountPath: "/opt/airflow/requirements.txt"
+          subPath: "requirements.txt"
+        - name: minio-config
+          mountPath: "/opt/airflow/minio_config.py"
+          subPath: "minio_config.py"
+      volumes:
+      - name: dags
+        hostPath:
+          path: ./dags
+      - name: script
+        hostPath:
+          path: ./script/entrypoint.sh
+      - name: requirements
+        hostPath:
+          path: ./requirements.txt
+      - name: minio-config
+        hostPath:
+          path: ./minio_config.py
