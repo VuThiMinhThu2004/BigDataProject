@@ -123,11 +123,11 @@ def main():
         
         # Chuyển từng hàng của CSV thành file JSON riêng biệt
         # logging.info("Converting CSV rows to individual JSON files...")
-        # csv_to_individual_json(minio_client=minio_client, bucket_name=bucket_name)
+        csv_to_individual_json(minio_client=minio_client, bucket_name=bucket_name)
         
         # Chuyển CSV thành Parquet
         logging.info("Converting CSV to Parquet...")
-        csv_to_parquet(minio_client=minio_client, bucket_name=bucket_name)
+        # csv_to_parquet(minio_client=minio_client, bucket_name=bucket_name)
         
         logging.info("Data processing completed successfully")
         

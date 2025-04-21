@@ -7,6 +7,6 @@
 
 # Comment lại giúp Chi nha em
 config = {
-    'access_key': 'T6sMJ0ENWHsyVWWXdMlI',
-    'secret_key': 'w9dciXDM8doZKay6PAbB4y2HF3x2wKPQtqKSfKgE'
+    'access_key': 'bOk1SXVciJQIUhfpZmAT',
+    'secret_key': 'YOGNBhqpuzQzBK3c6r61yri1O9YSm85gXkcaZQQB'
 }

@@ -108,7 +108,6 @@ Kết quả:
 #### Bước 5.1: Khởi động Spark đối với `testing_data_streaming`, xử lý và chuyển dữ liệu vào Redis
 1. Cài đặt những thứ cần thiết:
    ```bash
-   docker exec -it spark-master pip install spark_app/spark_requirement.txt
    conda install -c anaconda setuptools
 
    ```
@@ -126,7 +125,7 @@ Kết quả:
    ```
 
    ```bash
-   /opt/bitnami/spark$ /opt/bitnami/spark/bin/spark-submit --master spark://spark-master:7077 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1,org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 /opt/spark_app/testing_data_streaming.py
+   /opt/bitnami/spark/bin/spark-submit --master spark://spark-master:7077 --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.1,org.apache.hadoop:hadoop-aws:3.3.4,com.amazonaws:aws-java-sdk-bundle:1.12.262 /opt/spark_app/testing_data_streaming.py
    ```
 3. Sau khi Spark đã cài xong các file cấu hình liên quan và thực hiện xử lý, để kiểm tra xem data có đi vào Redis như kỳ vọng hay không:
    ```bash

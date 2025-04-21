@@ -35,7 +35,6 @@ current_model_file = None
 class PredictionRequest(BaseModel):
     user_id: int = 530834332
     product_id: int = 1005073
-    user_session: str = "040d0e0b-0a40-4d40-bdc9-c9252e877d9c"
 
 class PredictionResponse(BaseModel):
     predictions: List[float]
@@ -94,12 +93,12 @@ def get_features_from_redis(user_id: int, product_id: int) -> Dict[str, Any]:
     """Get features from Redis, similar to OnlineFeatureService."""
     try:
         # Construct the Redis key using user_id and product_id
-        key = f"feature:{user_id}:{product_id}"
+        key = f"user:{user_id}:product:{product_id}"
         feature_data = redis_client.get(key)
         
         if not feature_data:
             # Fallback to user-only features
-            key = f"feature:{user_id}"
+            key = f"user:{user_id}:product:{product_id}"
             feature_data = redis_client.get(key)
             
         if not feature_data:
@@ -139,11 +138,12 @@ async def predict(requests: List[PredictionRequest]):
             feature_result = get_features_from_redis(
                 user_id=request.user_id, product_id=request.product_id
             )
+            print(f"Feature result: {feature_result}")
             
             if not feature_result["success"]:
                 raise HTTPException(
                     status_code=500,
-                    detail=f"Failed to get features for user_id={request.user_id}, product_id={request.product_id}: {feature_result['error']}",
+                    detail=f"Loi la: {feature_result['error']} for user_id={request.user_id}, product_id={request.product_id}: {feature_result['error']}",
                 )
             
             # Convert feature lists to single values
@@ -189,5 +189,5 @@ async def reload_model():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-if __name__ == "__main__":
+if _name_ == "_main_":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
