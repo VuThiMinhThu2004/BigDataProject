@@ -8,7 +8,11 @@ cd node_exporter-1.6.1.linux-amd64
 
 chạy Node Exporter trong Docker
 ```bash
-docker run -d --name=node-exporter --net=host prom/node-exporter
+/root/thu/BigDataProject/node_exporter-1.6.1.linux-amd64/node_exporter &
+
+sudo netstat -tuln | grep 9100
+
+sudo ufw allow 9100
 ```
 
 Cấu hình Prometheus để scrape Node Exporter
