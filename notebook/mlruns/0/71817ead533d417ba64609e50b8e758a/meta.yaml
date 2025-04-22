@@ -1,0 +1,15 @@
+artifact_uri: notebook/mlruns/0/71817ead533d417ba64609e50b8e758a/artifacts
+end_time: 1744941888476
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 71817ead533d417ba64609e50b8e758a
+run_name: grid_search_xgb
+run_uuid: 71817ead533d417ba64609e50b8e758a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1744941885051
+status: 3
+tags: []
+user_id: root
