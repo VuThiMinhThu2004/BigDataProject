@@ -43,3 +43,7 @@
     - Grafana: 3000 (internal), 3009 (iframe access)
 - Model registry & serving:
     - MLFlow: 5000
+
+
+# Monitoring
+## Grafana
