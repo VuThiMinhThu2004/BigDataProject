@@ -1,9 +1,11 @@
-# Dataset used in this project is accessed at: https://www.kaggle.com/datasets/mkechinov/ecommerce-behavior-data-from-multi-category-store/data
-*.csv
-*.pyc
-myenv
-*ubj
-notebook
-node_exporter-1.6.1.linux-amd64
-tmp
-*pkl
+remote: Resolving deltas: 100% (130/130), completed with 9 local objects.
+remote: error: Trace: f5d8f872ab71896e80fad475d51af96664feac3f5a0f2ebc49b76875e9e1f90c
+remote: error: See https://gh.io/lfs for more information.
+remote: error: File prometheus-3.3.1.linux-amd64.tar.gz is 111.28 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: File prometheus-3.3.1.linux-amd64/prometheus is 146.70 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: File prometheus-3.3.1.linux-amd64/promtool is 138.76 MB; this exceeds GitHub's file size limit of 100.00 MB
+remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/VuThiMinhThu2004/BigDataProject
+ ! [remote rejected] grafana -> grafana (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/VuThiMinhThu2004/BigDataProject'
+(base) root@thu-mlops-stacks:~/thu/BigDataProject# 
