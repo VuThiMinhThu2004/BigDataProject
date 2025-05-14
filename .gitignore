@@ -4,3 +4,6 @@
 myenv
 *ubj
 notebook
+node_exporter-1.6.1.linux-amd64
+tmp
+*pkl
