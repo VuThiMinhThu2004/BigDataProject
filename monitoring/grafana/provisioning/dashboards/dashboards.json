@@ -1,0 +1,89 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Prometheus Monitoring Dashboard",
+    "timezone": "browser",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Requests per Second (inference-api)",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job=\"inference-api\"}[1m])",
+            "legendFormat": "{{instance}}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        }
+      },
+      {
+        "type": "gauge",
+        "title": "Node Exporter Status",
+        "targets": [
+          {
+            "expr": "up{job=\"node-exporter\"}",
+            "legendFormat": "{{instance}}",
+            "refId": "B"
+          }
+        ],
+        "gridPos": {
+          "x": 12,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
+        "options": {
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          },
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "type": "graph",
+        "title": "CPU Usage (node-exporter)",
+        "targets": [
+          {
+            "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[1m])) * 100)",
+            "legendFormat": "{{instance}}",
+            "refId": "C"
+          }
+        ],
+        "gridPos": {
+          "x": 0,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        }
+      },
+      {
+        "type": "graph",
+        "title": "Memory Usage (node-exporter)",
+        "targets": [
+          {
+            "expr": "(node_memory_MemTotal_bytes{job=\"node-exporter\"} - node_memory_MemAvailable_bytes{job=\"node-exporter\"}) / node_memory_MemTotal_bytes{job=\"node-exporter\"} * 100",
+            "legendFormat": "{{instance}}",
+            "refId": "D"
+          }
+        ],
+        "gridPos": {
+          "x": 12,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        }
+      }
+    ],
+    "schemaVersion": 36,
+    "version": 0,
+    "refresh": "5s"
+  }
+}

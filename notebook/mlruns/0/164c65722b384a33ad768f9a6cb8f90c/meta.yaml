@@ -1,0 +1,15 @@
+artifact_uri: /root/thu/BigDataProject/notebook/mlruns/0/164c65722b384a33ad768f9a6cb8f90c/artifacts
+end_time: 1745378742704
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 164c65722b384a33ad768f9a6cb8f90c
+run_name: lr_0.1_depth_3_subsample_0.8
+run_uuid: 164c65722b384a33ad768f9a6cb8f90c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1745378690796
+status: 3
+tags: []
+user_id: root

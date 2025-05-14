@@ -11,3 +11,7 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['10.200.2.51:9100']  # Thay 'localhost' bằng IP hoặc hostname của Node Exporter
+
+  - job_name: 'ray'
+    static_configs:
+    - targets: ['ray-head:8000']

@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   ray-head:
     build:
@@ -9,7 +11,7 @@ services:
       - "10001:10001"
       - "8001:8000"
     volumes:
-      - /tmp/ray:/tmp/ray
+      - /tmp/ray:/tmp/ray  # Lưu dữ liệu Ray tại đây
     command: >
       bash -c "ray start --head
       --dashboard-port=8265
@@ -21,14 +23,14 @@ services:
     environment:
       - RAY_GRAFANA_HOST=http://grafana:3000
       - RAY_GRAFANA_IFRAME_HOST=http://localhost:3009
-      - RAY_PROMETHEUS_HOST=http://prometheus:9090
+      - RAY_PROMETHEUS_HOST=http://prometheus:9091
       - RAY_PROMETHEUS_NAME=Prometheus
     shm_size: 2g
     deploy:
       resources:
         limits:
-          cpus: "1"
-          memory: "2g"
+          cpus: "2"
+          memory: "4g"
     networks:
       - confluent
 
@@ -36,15 +38,36 @@ services:
     image: rayproject/ray:2.5.0-py39
     depends_on:
       - ray-head
-    command: bash -c "ray start --address=ray-head:6379 --redis-password=your_password --num-cpus=10 --block"
+    command: bash -c "ray start --address=ray-head:6379 --redis-password=your_password --num-cpus=2 --block"
     shm_size: 2g
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 2
       resources:
         limits:
-          cpus: "4"
+          cpus: "2"
           memory: "4g"
+    networks:
+      - confluent
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - /tmp/ray/session_latest/metrics/prometheus:/etc/prometheus  # Lưu dữ liệu Prometheus tại đây
+    ports:
+      - "9091:9090"
+    networks:
+      - confluent
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - /tmp/ray/session_latest/metrics/grafana:/var/lib/grafana  # Lưu dữ liệu Grafana tại đây
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - confluent
 

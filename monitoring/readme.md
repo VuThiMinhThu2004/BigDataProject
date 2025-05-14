@@ -36,3 +36,28 @@ Khởi động lại Prometheus
 ```bash
 docker-compose restart prometheus
 ```
+
+
+Cài Grafana server:
+```bash
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+```
+
+```bash
+sudo apt-get update
+sudo apt-get install grafana
+docker-compose restart grafana
+
+```
+
+
+```bash
+grafana-cli -v
+```
+
+```bash
+grafana-cli plugins install grafana-piechart-panel
+sudo systemctl restart grafana-server
+```

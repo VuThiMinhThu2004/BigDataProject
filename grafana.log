@@ -1,0 +1,48 @@
+nohup: ignoring input
+Grafana server is running with elevated privileges. This is not recommended
+logger=settings t=2025-05-12T09:33:47.937418975+07:00 level=info msg="Starting Grafana" version=11.6.0 commit=d2fdff9ee4d75c74bfd3a97c18a0b8e4d029f06e branch=HEAD compiled=2025-05-12T09:33:47+07:00
+logger=settings t=2025-05-12T09:33:47.937788719+07:00 level=info msg="Config loaded from" file=/usr/share/grafana/conf/defaults.ini
+logger=settings t=2025-05-12T09:33:47.937819761+07:00 level=info msg="Config loaded from" file=/etc/grafana/grafana.ini
+logger=settings t=2025-05-12T09:33:47.937830639+07:00 level=info msg=Target target=[all]
+logger=settings t=2025-05-12T09:33:47.937845942+07:00 level=info msg="Path Home" path=/usr/share/grafana
+logger=settings t=2025-05-12T09:33:47.937855892+07:00 level=info msg="Path Data" path=/usr/share/grafana/data
+logger=settings t=2025-05-12T09:33:47.937866974+07:00 level=info msg="Path Logs" path=/usr/share/grafana/data/log
+logger=settings t=2025-05-12T09:33:47.937877708+07:00 level=info msg="Path Plugins" path=/usr/share/grafana/data/plugins
+logger=settings t=2025-05-12T09:33:47.937887596+07:00 level=info msg="Path Provisioning" path=/usr/share/grafana/conf/provisioning
+logger=settings t=2025-05-12T09:33:47.937897909+07:00 level=info msg="App mode production"
+logger=featuremgmt t=2025-05-12T09:33:47.938426962+07:00 level=info msg=FeatureToggles userStorageAPI=true alertingApiServer=true promQLScope=true tlsMemcached=true alertingRuleVersionHistoryRestore=true logsInfiniteScrolling=true logsExploreTableVisualisation=true publicDashboardsScene=true alertingQueryAndExpressionsStepMode=true nestedFolders=true angularDeprecationUI=true newFiltersUI=true panelMonitoring=true preinstallAutoUpdate=true dashboardSceneSolo=true lokiQuerySplitting=true influxdbBackendMigration=true alertingInsights=true alertingUIOptimizeReducer=true logsContextDatasourceUi=true addFieldFromCalculationStatFunctions=true alertingNoDataErrorExecution=true unifiedRequestLog=true transformationsRedesign=true dataplaneFrontendFallback=true lokiQueryHints=true recordedQueriesMulti=true alertingNotificationsStepMode=true ssoSettingsApi=true accessActionSets=true azureMonitorEnableUserAuth=true dashgpt=true newPDFRendering=true dashboardScene=true cloudWatchNewLabelParsing=true alertRuleRestore=true pinNavItems=true useSessionStorageForRedirection=true formatString=true onPremToCloudMigrations=true correlations=true reportingUseRawTimeRange=true groupToNestedTableTransformation=true lokiLabelNamesQueryApi=true prometheusAzureOverrideAudience=true lokiStructuredMetadata=true ssoSettingsSAML=true annotationPermissionUpdate=true alertingSimplifiedRouting=true dashboardSceneForViewers=true cloudWatchCrossAccountQuerying=true newDashboardSharingComponent=true awsAsyncQueryCaching=true exploreMetrics=true kubernetesPlaylists=true logRowsPopoverMenu=true recoveryThreshold=true cloudWatchRoundUpEndTime=true
+logger=sqlstore t=2025-05-12T09:33:47.93854606+07:00 level=info msg="Connecting to DB" dbtype=sqlite3
+logger=migrator t=2025-05-12T09:33:47.948441635+07:00 level=info msg="Locking database"
+logger=migrator t=2025-05-12T09:33:47.948476752+07:00 level=info msg="Starting DB migrations"
+logger=migrator t=2025-05-12T09:33:47.969856678+07:00 level=info msg="migrations completed" performed=0 skipped=644 duration=1.010412ms
+logger=migrator t=2025-05-12T09:33:47.970355846+07:00 level=info msg="Unlocking database"
+logger=secrets t=2025-05-12T09:33:47.970715135+07:00 level=info msg="Envelope encryption state" enabled=true currentprovider=secretKey.v1
+logger=plugin.angulardetectorsprovider.dynamic t=2025-05-12T09:33:48.075263366+07:00 level=info msg="Restored cache from database" duration=367.419µs
+logger=resource-migrator t=2025-05-12T09:33:48.076909434+07:00 level=info msg="Locking database"
+logger=resource-migrator t=2025-05-12T09:33:48.076943349+07:00 level=info msg="Starting DB migrations"
+logger=resource-migrator t=2025-05-12T09:33:48.077964884+07:00 level=info msg="migrations completed" performed=0 skipped=23 duration=51.051µs
+logger=resource-migrator t=2025-05-12T09:33:48.078439108+07:00 level=info msg="Unlocking database"
+logger=sql-resource-server t=2025-05-12T09:33:48.078573468+07:00 level=info msg="Using channel notifier"
+logger=plugin.store t=2025-05-12T09:33:48.079676595+07:00 level=info msg="Loading plugins..."
+logger=plugins.registration t=2025-05-12T09:33:48.200373178+07:00 level=info msg="Plugin registered" pluginId=grafana-lokiexplore-app
+logger=plugins.registration t=2025-05-12T09:33:48.285116497+07:00 level=info msg="Plugin registered" pluginId=grafana-pyroscope-app
+logger=plugin.store t=2025-05-12T09:33:48.285176823+07:00 level=info msg="Plugins loaded" count=57 duration=205.501426ms
+logger=query_data t=2025-05-12T09:33:48.290854005+07:00 level=info msg="Query Service initialization"
+logger=live.push_http t=2025-05-12T09:33:48.296128022+07:00 level=info msg="Live Push Gateway initialization"
+logger=ngalert.notifier.alertmanager org=1 t=2025-05-12T09:33:48.301235513+07:00 level=info msg="Applying new configuration to Alertmanager" configHash=d2c56faca6af2a5772ff4253222f7386
+logger=ngalert t=2025-05-12T09:33:48.316585524+07:00 level=info msg="Using simple database alert instance store"
+logger=ngalert.state.manager.persist t=2025-05-12T09:33:48.316703227+07:00 level=info msg="Using sync state persister"
+logger=ngalert.state.manager t=2025-05-12T09:33:48.316831149+07:00 level=info msg="Running in alternative execution of Error/NoData mode"
+logger=infra.usagestats.collector t=2025-05-12T09:33:48.318789358+07:00 level=info msg="registering usage stat providers" usageStatsProvidersLen=2
+logger=grafanaStorageLogger t=2025-05-12T09:33:48.319702033+07:00 level=info msg="Storage starting"
+logger=server t=2025-05-12T09:33:48.32216759+07:00 level=error msg="Stopped background service" service=*api.HTTPServer reason="failed to open listener on address 0.0.0.0:3000: listen tcp 0.0.0.0:3000: bind: address already in use"
+logger=tracing t=2025-05-12T09:33:48.322362692+07:00 level=info msg="Closing tracing"
+logger=grafana.update.checker t=2025-05-12T09:33:48.32243448+07:00 level=error msg="Update check failed" error="failed to get stable version from grafana.com: Get \"https://grafana.com/api/grafana/versions/stable\": *api.HTTPServer run error: failed to open listener on address 0.0.0.0:3000: listen tcp 0.0.0.0:3000: bind: address already in use" duration=1.202441ms
+logger=provisioning.alerting t=2025-05-12T09:33:48.324227648+07:00 level=info msg="starting to provision alerting"
+logger=provisioning.alerting t=2025-05-12T09:33:48.32435165+07:00 level=info msg="finished to provision alerting"
+logger=provisioning.dashboard t=2025-05-12T09:33:48.324543443+07:00 level=warn msg="Failed to delete orphaned provisioned dashboards" err="context canceled"
+logger=provisioning.dashboard t=2025-05-12T09:33:48.324625217+07:00 level=info msg="starting to provision dashboards"
+logger=provisioning.dashboard t=2025-05-12T09:33:48.324670406+07:00 level=info msg="finished to provision dashboards"
+logger=serviceaccounts t=2025-05-12T09:33:48.328795355+07:00 level=error msg="Failed to lock and execute the migration of API keys to service accounts" error="context canceled"
+logger=auth t=2025-05-12T09:33:48.330516419+07:00 level=error msg="Failed to lock and execute cleanup of expired auth token" error="context canceled"
+Error: ✗ *api.HTTPServer run error: failed to open listener on address 0.0.0.0:3000: listen tcp 0.0.0.0:3000: bind: address already in use

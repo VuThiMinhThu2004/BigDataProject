@@ -14,6 +14,7 @@
     ```bash
     mlflow server --backend-store-uri ./mlruns --host 0.0.0.0 --port 5000
     mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5000
+    mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0 --port 5001
     ```
 - Link: http://10.200.2.51:5000/#/experiments/0
 - Sử dụng SQLite làm backend store. Dữ liệu của MLflow (chẳng hạn như thông tin về các experiments, runs, parameters, metrics) sẽ được lưu trong tệp mlflow.db.
@@ -47,3 +48,10 @@
 
 # Monitoring
 ## Grafana
+docker ps | grep node-exporter
+docker-compose up -d node-exporter
+
+# Delete Container:
+docker-compose up -d --remove-orphans
+docker volume prune
+docker container prune

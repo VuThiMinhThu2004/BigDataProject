@@ -1,4 +1,4 @@
 config = {
-    'access_key': 'iaaOiXYeXQdRvZYBGqCB',
-    'secret_key': 'aXrBPgyiRS6wAfNU5i0npQPmHqo8t1fIgxPkjfON'
+    'access_key': 'TlXKLoTEXew4WpH4c2Wc',
+    'secret_key': 'g7XVwOXESfVRuTsw5pcTkdxl4kh44FvY69lDcgPo'
 }

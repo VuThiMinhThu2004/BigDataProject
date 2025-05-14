@@ -1,0 +1,6 @@
+artifact_location: /root/thu/BigDataProject/notebook/mlruns/1
+creation_time: 1745386421809
+experiment_id: '1'
+last_update_time: 1745386421809
+lifecycle_stage: active
+name: XGBoost_Training_user2
